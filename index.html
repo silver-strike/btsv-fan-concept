@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beyond the Spider-Verse — Fan Concept</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #000;
+    --red: #e5001a;
+    --red-dim: #8a0010;
+    --red-dark: #1f0005;
+    --blue: #0088ff;
+    --blue-dim: #004a99;
+    --blue-dark: #000d1f;
+    --white: #f0e8e8;
+    --dim: #0a0000;
+    --ink: #5a2030;
+    --red-glow: 0 0 10px #e5001a, 0 0 25px #e5001a88;
+    --blue-glow: 0 0 10px #0088ff, 0 0 22px #0088ff66;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  ::selection { background: var(--red); color: #fff; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Share Tech Mono', monospace;
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+
+  /* ============== MATRIX RAIN ============== */
+  #matrix-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    opacity: 0.09;
+    pointer-events: none;
+  }
+
+  /* ============== SCANLINES ============== */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(229,0,26,0.018) 2px,
+      rgba(229,0,26,0.018) 4px
+    );
+    pointer-events: none;
+    z-index: 9998;
+  }
+
+  /* Vignette */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.75) 100%);
+    pointer-events: none;
+    z-index: 9997;
+  }
+
+  /* ============== GLITCH KEYFRAMES ============== */
+  @keyframes glitch {
+    0%, 88%, 100% { clip-path: none; transform: none; }
+    90% { clip-path: inset(15% 0 70% 0); transform: translate(-5px, 0); color: var(--blue); }
+    92% { clip-path: inset(65% 0 10% 0); transform: translate(5px, 0); color: var(--red); }
+    94% { clip-path: none; transform: none; color: inherit; }
+  }
+
+  @keyframes titleGlitch {
+    0%, 85%, 100% { text-shadow: var(--red-glow); }
+    87% { text-shadow: -3px 0 var(--blue), 3px 0 var(--red); letter-spacing: 0.05em; }
+    89% { text-shadow: 3px 0 var(--blue), -3px 0 var(--red); }
+    91% { text-shadow: var(--red-glow); }
+  }
+
+  @keyframes borderPulse {
+    0%, 100% { border-color: var(--red-dark); box-shadow: none; }
+    50% { border-color: var(--red-dim); box-shadow: 0 0 8px rgba(229,0,26,0.15); }
+  }
+
+  @keyframes borderFlash {
+    0%, 90%, 100% { border-color: var(--red-dark); }
+    92% { border-color: var(--blue); box-shadow: var(--blue-glow); }
+    94% { border-color: var(--red); box-shadow: var(--red-glow); }
+    96% { border-color: var(--red-dark); box-shadow: none; }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(25px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  @keyframes scanH {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(200%); }
+  }
+
+  @keyframes drift {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    33% { transform: translateY(-12px) rotate(4deg); }
+    66% { transform: translateY(6px) rotate(-2deg); }
+  }
+
+  /* ============== HERO ============== */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 6rem 3rem 4rem;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid #1a0005;
+    z-index: 1;
+  }
+
+  /* Spot holes background */
+  .spot-hole {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(229,0,26,0.08);
+    background: radial-gradient(circle, rgba(0,0,0,0.95) 55%, rgba(229,0,26,0.03) 100%);
+    animation: drift 10s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .spot-hole:nth-child(1) { width: 500px; height: 500px; top: -150px; right: -80px; animation-delay: 0s; opacity: 0.5; }
+  .spot-hole:nth-child(2) { width: 180px; height: 180px; top: 30%; left: 3%; animation-delay: 3s; opacity: 0.3; }
+  .spot-hole:nth-child(3) { width: 90px; height: 90px; bottom: 10%; left: 35%; animation-delay: 6s; opacity: 0.4; }
+  .spot-hole:nth-child(4) { width: 300px; height: 300px; bottom: -100px; right: 20%; animation-delay: 1.5s; opacity: 0.2; border-color: rgba(0,136,255,0.07); }
+
+  /* Red ambient */
+  .hero-glow {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 80% 30%, rgba(229,0,26,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 10% 80%, rgba(0,136,255,0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .hero-content { position: relative; z-index: 2; max-width: 900px; }
+
+  .hero-eyebrow {
+    font-size: 0.68rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--red-dim);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.3s;
+  }
+
+  .hero-eyebrow::before { content: '> '; color: var(--red); }
+
+  .cursor-blink {
+    display: inline-block;
+    width: 9px; height: 1em;
+    background: var(--red);
+    margin-left: 4px;
+    vertical-align: middle;
+    animation: blink 1s step-end infinite;
+    box-shadow: var(--red-glow);
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(5rem, 14vw, 12rem);
+    line-height: 0.9;
+    color: var(--white);
+    text-shadow: var(--red-glow);
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.5s, titleGlitch 7s ease-in-out infinite 2s;
+    position: relative;
+  }
+
+  /* Chromatic aberration layers */
+  .hero-title::before {
+    content: attr(data-text);
+    position: absolute;
+    top: 0; left: 0;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: inherit;
+    line-height: inherit;
+    color: var(--red);
+    animation: glitch 7s ease-in-out infinite 2s;
+    clip-path: inset(0 0 75% 0);
+    transform: translate(-4px, 1px);
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  .hero-title::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0; left: 0;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: inherit;
+    line-height: inherit;
+    color: var(--blue);
+    animation: glitch 7s ease-in-out infinite 2.15s;
+    clip-path: inset(75% 0 0 0);
+    transform: translate(4px, -1px);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .hero-title .red { color: var(--red); text-shadow: var(--red-glow); }
+
+  .hero-subtitle {
+    font-family: 'VT323', monospace;
+    font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+    color: #6a3040;
+    margin-top: 1.5rem;
+    max-width: 620px;
+    line-height: 1.6;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.7s;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2rem;
+    margin-top: 3rem;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.9s;
+    flex-wrap: wrap;
+  }
+
+  .hero-meta-item {
+    border: 1px solid #1f0005;
+    padding: 0.75rem 1.25rem;
+    animation: borderFlash 9s ease-in-out infinite;
+    transition: border-color 0.3s;
+  }
+
+  .hero-meta-item:nth-child(3) { border-color: #000d1f; animation: none; }
+  .hero-meta-item:nth-child(3):hover { border-color: var(--blue-dim); box-shadow: var(--blue-glow); }
+
+  .hero-meta-item .label {
+    font-size: 0.55rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin-bottom: 0.3rem;
+  }
+
+  .hero-meta-item .value { font-size: 0.85rem; color: var(--white); }
+  .hero-meta-item:nth-child(3) .value { color: var(--blue); }
+
+  /* ============== LAYOUT ============== */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 3rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  section {
+    padding: 7rem 0;
+    border-bottom: 1px solid #0d0003;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+    position: relative;
+    z-index: 1;
+  }
+
+  section.visible { opacity: 1; transform: translateY(0); }
+
+  .section-number {
+    font-size: 0.62rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .section-number::before { content: '// '; color: var(--red-dim); }
+
+  .section-number::after {
+    content: '';
+    flex: 1;
+    max-width: 60px;
+    height: 1px;
+    background: var(--red-dark);
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    line-height: 1;
+    letter-spacing: 0.02em;
+    margin-bottom: 3rem;
+    color: var(--white);
+    text-shadow: 0 0 6px rgba(229,0,26,0.4);
+    animation: titleGlitch 12s ease-in-out infinite;
+  }
+
+  .section-title em {
+    color: var(--red);
+    font-style: normal;
+    text-shadow: var(--red-glow);
+  }
+
+  .section-title .blue-em {
+    color: var(--blue);
+    font-style: normal;
+    text-shadow: var(--blue-glow);
+  }
+
+  .body-text {
+    font-size: 0.92rem;
+    line-height: 1.9;
+    color: #b08090;
+    max-width: 680px;
+  }
+
+  .body-text + .body-text { margin-top: 1.5rem; }
+
+  /* ============== PREMISE ============== */
+  .premise-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  .premise-right { padding-top: 6rem; }
+
+  /* ============== ALLIANCE ============== */
+  .alliance-section { background: #050000; }
+
+  .character-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin: 3rem 0;
+  }
+
+  .char-card {
+    padding: 3rem 2.5rem;
+    border: 1px solid #1a0005;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  /* top scan line */
+  .char-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--red), transparent);
+    animation: scanH 4s linear infinite;
+    opacity: 0.5;
+  }
+
+  .char-card.miles:hover { border-color: var(--red); box-shadow: var(--red-glow); }
+  .char-card.spot:hover  { border-color: var(--blue); box-shadow: var(--blue-glow); }
+  .char-card.spot::before { background: linear-gradient(90deg, transparent, var(--blue), transparent); }
+
+  .char-name {
+    font-family: 'VT323', monospace;
+    font-size: 3.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: flex-end;
+    gap: 0.75rem;
+  }
+
+  .char-name .sub {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin-bottom: 0.75rem;
+  }
+
+  .char-card.miles .char-name { color: var(--red); text-shadow: var(--red-glow); }
+  .char-card.spot .char-name  { color: var(--blue); text-shadow: var(--blue-glow); }
+
+  .char-body { font-size: 0.85rem; line-height: 1.85; color: #6a3040; }
+  .char-card.spot .char-body  { color: #1e3a5a; }
+
+  .mechanic-block {
+    background: #000;
+    border: 1px solid #1a0005;
+    border-left: 3px solid var(--red);
+    padding: 2rem 2.5rem;
+    margin-top: 2px;
+    position: relative;
+    overflow: hidden;
+    animation: borderFlash 11s ease-in-out infinite;
+  }
+
+  .mechanic-block.blue-block {
+    border-left-color: var(--blue);
+    animation: none;
+    border-color: #000d1f;
+  }
+
+  .mechanic-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--red-dim);
+    margin-bottom: 0.75rem;
+  }
+
+  .mechanic-label::before { content: '['; }
+  .mechanic-label::after  { content: ']'; }
+
+  .mechanic-block.blue-block .mechanic-label { color: var(--blue-dim); }
+
+  .mechanic-text { font-size: 0.9rem; line-height: 1.8; color: #b08090; }
+  .mechanic-block.blue-block .mechanic-text { color: #5a8ab0; }
+
+  /* ============== GWEN ============== */
+  .gwen-layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 5rem;
+  }
+
+  .pull-quote {
+    font-family: 'VT323', monospace;
+    font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+    line-height: 1.5;
+    color: var(--white);
+    border-left: 3px solid var(--red);
+    padding: 1.5rem 0 1.5rem 2.5rem;
+    margin: 2.5rem 0;
+    text-shadow: 0 0 6px rgba(229,0,26,0.3);
+    animation: titleGlitch 14s ease-in-out infinite;
+  }
+
+  .gwen-sidebar {
+    padding-top: 5rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-block {
+    padding: 1.5rem;
+    border: 1px solid #0d0003;
+    border-bottom: none;
+    transition: border-color 0.3s, background 0.3s;
+  }
+
+  .sidebar-block:last-child { border-bottom: 1px solid #0d0003; }
+  .sidebar-block:hover { border-color: var(--red-dark); background: #050000; }
+
+  .sidebar-block.blue-side { border-color: #000a14; }
+  .sidebar-block.blue-side:hover { border-color: var(--blue-dark); background: #000d1f; }
+
+  .sidebar-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin-bottom: 0.6rem;
+  }
+
+  .sidebar-label::before { content: '> '; color: var(--red-dim); }
+  .sidebar-block.blue-side .sidebar-label::before { content: '> '; color: var(--blue-dim); }
+
+  .sidebar-value { font-size: 0.85rem; line-height: 1.7; color: #6a3040; }
+  .sidebar-block.blue-side .sidebar-value { color: #1e3a5a; }
+
+  /* ============== HOBIE ============== */
+  .hobie-section { background: #000; }
+
+  .last-words-block {
+    background: #000;
+    border: 1px solid #1a0005;
+    padding: 5rem 4rem;
+    margin: 3rem 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    animation: borderFlash 5s ease-in-out infinite;
+  }
+
+  .last-words-block::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(229,0,26,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .last-words-block::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: -100%;
+    width: 60%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--red), transparent);
+    animation: scanH 5s linear infinite;
+  }
+
+  .last-words-text {
+    font-family: 'VT323', monospace;
+    font-size: clamp(3rem, 7vw, 6rem);
+    color: var(--white);
+    line-height: 1.15;
+    text-shadow: var(--red-glow);
+    animation: titleGlitch 4s ease-in-out infinite;
+    position: relative;
+    z-index: 1;
+  }
+
+  .last-words-text span {
+    color: var(--red);
+    text-shadow: var(--red-glow);
+    display: block;
+    font-size: 1.3em;
+    animation: titleGlitch 3s ease-in-out infinite 0.5s;
+  }
+
+  .last-words-attribution {
+    margin-top: 2rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--ink);
+    position: relative;
+    z-index: 1;
+  }
+
+  .last-words-attribution::before { content: '— '; }
+
+  /* ============== THEMES ============== */
+  .themes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2px;
+    margin-top: 3rem;
+  }
+
+  .theme-card {
+    padding: 2.5rem 2rem;
+    background: #050000;
+    border: 1px solid #0d0003;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .theme-card:hover { border-color: var(--red-dark); box-shadow: inset 0 0 30px rgba(229,0,26,0.04); }
+  .theme-card.blue-card:hover { border-color: var(--blue-dark); box-shadow: inset 0 0 30px rgba(0,136,255,0.04); }
+
+  .theme-card:hover .theme-name { text-shadow: var(--red-glow); animation: titleGlitch 2s ease-in-out infinite; }
+  .theme-card.blue-card:hover .theme-name { text-shadow: var(--blue-glow); animation: none; color: var(--blue); }
+
+  .theme-icon { font-size: 1.2rem; margin-bottom: 1.5rem; display: block; color: var(--red-dim); }
+  .theme-card.blue-card .theme-icon { color: var(--blue-dim); }
+
+  .theme-name {
+    font-family: 'VT323', monospace;
+    font-size: 1.8rem;
+    color: var(--white);
+    margin-bottom: 0.75rem;
+    transition: text-shadow 0.3s, color 0.3s;
+  }
+
+  .theme-desc { font-size: 0.82rem; line-height: 1.7; color: #4a2030; }
+  .theme-card.blue-card .theme-desc { color: #1a2a40; }
+
+  /* ============== ENDING ============== */
+  .ending-section { background: #000; border-bottom: none; }
+
+  .ending-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-top: 3rem;
+  }
+
+  .ending-panel {
+    padding: 3rem 2.5rem;
+    background: #050000;
+    border: 1px solid #0d0003;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+
+  .ending-panel:hover { border-color: var(--red-dark); }
+
+  .ending-panel.void-panel {
+    background: #000;
+    border-color: #050005;
+  }
+
+  .ending-panel-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--red-dim);
+    margin-bottom: 1.5rem;
+  }
+
+  .ending-panel-label::before { content: '// '; }
+
+  .ending-panel-title {
+    font-family: 'VT323', monospace;
+    font-size: 2.5rem;
+    color: var(--white);
+    margin-bottom: 1.5rem;
+    text-shadow: 0 0 6px rgba(229,0,26,0.3);
+  }
+
+  .void-panel .ending-panel-title { color: #1a0a10; text-shadow: none; }
+
+  .ending-panel-body { font-size: 0.85rem; line-height: 1.85; color: #4a2030; }
+  .void-panel .ending-panel-body { color: #150a10; }
+
+  /* ============== DIVIDER ============== */
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #1a0005, transparent);
+    margin: 3rem 0;
+  }
+
+  /* Terminal highlight */
+  .terminal-highlight {
+    background: rgba(229,0,26,0.1);
+    color: var(--white);
+    padding: 0.1em 0.3em;
+    border: 1px solid #1a0005;
+  }
+
+  .terminal-highlight.blue {
+    background: rgba(0,136,255,0.08);
+    border-color: #000d1f;
+    color: var(--blue);
+  }
+
+  /* ============== FOOTER ============== */
+  footer {
+    padding: 5rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 2rem;
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid #0d0003;
+  }
+
+  .footer-concept {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink);
+    line-height: 1.8;
+  }
+
+  .footer-concept::before { content: '> '; color: var(--red-dim); }
+
+  .footer-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.5rem, 4vw, 3rem);
+    color: #1a0005;
+    line-height: 1;
+  }
+
+  .footer-chaos {
+    font-family: 'VT323', monospace;
+    font-size: 1.1rem;
+    color: var(--blue);
+    text-shadow: var(--blue-glow);
+  }
+
+  /* ============== RESPONSIVE ============== */
+  @media (max-width: 768px) {
+    .hero { padding: 5rem 1.5rem 3rem; }
+    .container { padding: 0 1.5rem; }
+    section { padding: 5rem 0; }
+    .premise-grid, .gwen-layout, .character-cards, .ending-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .premise-right, .gwen-sidebar { padding-top: 0; }
+    .last-words-block { padding: 3rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="matrix-canvas"></canvas>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-glow"></div>
+  <div class="spot-hole"></div>
+  <div class="spot-hole"></div>
+  <div class="spot-hole"></div>
+  <div class="spot-hole"></div>
+
+  <div class="hero-content">
+    <p class="hero-eyebrow">FAN_CONCEPT // STORY_BREAKDOWN // CHAOS_COEFFICIENT: MAX<span class="cursor-blink"></span></p>
+    <h1 class="hero-title" data-text="Beyond The Spider-Verse">Beyond<br>The <span class="red">Spider</span>-Verse</h1>
+    <p class="hero-subtitle">// Two anomalies. One broken system. The multiverse will never recover.</p>
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <span class="label">CHAOS_COEFF</span>
+        <span class="value">MAXIMUM</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">CANON_EVENTS</span>
+        <span class="value">BROKEN: ALL</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">SEQUEL</span>
+        <span class="value">NULL</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- PREMISE -->
+<section id="premise">
+  <div class="container">
+    <div class="premise-grid">
+      <div>
+        <div class="section-number">01 — CORE_PREMISE</div>
+        <h2 class="section-title">Two <em>Anomalies.</em><br>One Truth.</h2>
+        <p class="body-text">Miles Morales and The Spot team up. One was told he doesn't belong anywhere. The other was literally made of holes. Together, they systematically dismantle the entire concept of canon events.</p>
+        <p class="body-text">The spider society built their entire system on the idea that there is one correct timeline, one correct story. Miles and Spot are living proof that the multiverse doesn't actually work that way.</p>
+      </div>
+      <div class="premise-right">
+        <div class="mechanic-block">
+          <div class="mechanic-label">CENTRAL_THESIS</div>
+          <p class="mechanic-text">Anomalies aren't errors.<br>They're evolution.</p>
+        </div>
+        <div class="mechanic-block blue-block" style="margin-top: 2px;">
+          <div class="mechanic-label">SYSTEM_ERROR</div>
+          <p class="mechanic-text">There is one correct story. One correct timeline. Miguel O'Hara built a religion around this idea — and became the villain of his own.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ALLIANCE -->
+<section id="alliance" class="alliance-section">
+  <div class="container">
+    <div class="section-number">02 — THE_ALLIANCE</div>
+    <h2 class="section-title">Miles <span class="blue-em">&</span> Spot</h2>
+    <div class="character-cards">
+      <div class="char-card miles">
+        <div class="char-name">Miles <span class="sub">// the anomaly</span></div>
+        <p class="char-body">He knows what it feels like to be told he doesn't belong. To be the anomaly. To have everyone write him off. That's exactly why he's the only person who could look at Spot and genuinely understand him — because he's lived it.</p>
+      </div>
+      <div class="char-card spot">
+        <div class="char-name">Spot <span class="sub">// the void</span></div>
+        <p class="char-body">He didn't start wanting to be a villain. He was a scientist who got absolutely cooked by Miles — accidentally. The multiverse trauma radicalized him. The holes in his body are a metaphor for feeling incomplete. He's what happens when an anomaly is never shown grace.</p>
+      </div>
+      <div class="mechanic-block" style="grid-column: 1 / -1;">
+        <div class="mechanic-label">TRAVEL_MECHANIC</div>
+        <p class="mechanic-text">In ATSV, the Spider Society used a special band to travel between universes. Miles didn't have one — contained, controlled, monitored. But with Spot's portals? He now has the most organic, ungoverned version of that ability imaginable. No bureaucracy. No Miguel breathing down his neck. No gatekeeping. Just two anomalies going anywhere they want. Miguel's vein is pulsing somewhere in the multiverse.</p>
+      </div>
+    </div>
+    <p class="body-text" style="margin-top: 2rem;">What happens when Miles looks at Spot and says — <span class="terminal-highlight">"Hey. I did that to you. I'm sorry."</span> Spot doesn't know what to do with that. Nobody has ever done that before.</p>
+  </div>
+</section>
+
+<!-- GWEN -->
+<section id="gwen">
+  <div class="container">
+    <div class="section-number">03 — CANON_EVENT</div>
+    <h2 class="section-title">Gwen <em>Stacy</em></h2>
+    <div class="gwen-layout">
+      <div>
+        <p class="body-text">Gwen Stacy is both of their canon events. Miles' canon is losing someone he loves. Spot's canon is the accident that destroyed him. And Gwen is somehow the thread connecting both of their tragedies — without even knowing she's carrying that weight for two people simultaneously.</p>
+        <div class="pull-quote">What if Gwen finds out she's their canon event? And she has to decide whether to tell them — knowing they'll burn the multiverse down for her.</div>
+        <p class="body-text">Miles spent all of ATSV fighting to save his dad from a canon event. And now the universe says: cool, here's another one. Except this time it's Gwen — and he just broke the entire system trying to prevent this exact moment.</p>
+        <div class="divider"></div>
+        <p class="body-text"><span class="terminal-highlight">// GUT_PUNCH</span> — Spot accidentally does to Gwen exactly what Miles accidentally did to Spot. The same cycle. The same guilt. Except now Spot has to watch Miles look at him the way he used to look at Miles — and Miles has to hold both his grief for Gwen AND his understanding that Spot didn't mean it.</p>
+        <p class="body-text">They break each other. Spot disappears. Miles chases him. Gwen is somewhere in the middle.</p>
+      </div>
+      <div class="gwen-sidebar">
+        <div class="sidebar-block">
+          <div class="sidebar-label">MILES_CANON</div>
+          <div class="sidebar-value">Losing someone he loves</div>
+        </div>
+        <div class="sidebar-block blue-side">
+          <div class="sidebar-label">SPOT_CANON</div>
+          <div class="sidebar-value">The accident that destroyed him</div>
+        </div>
+        <div class="sidebar-block">
+          <div class="sidebar-label">CONNECTION</div>
+          <div class="sidebar-value">Gwen. Both threads. One person. She doesn't know she's carrying it.</div>
+        </div>
+        <div class="sidebar-block blue-side">
+          <div class="sidebar-label">THE_CHOICE</div>
+          <div class="sidebar-value">Her quietly accepting it vs. them absolutely refusing. Her choice. Their chaos.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOBIE -->
+<section id="hobie" class="hobie-section">
+  <div class="container">
+    <div class="section-number">04 — FATAL_ERROR</div>
+    <h2 class="section-title">Hobie <em>Brown</em></h2>
+    <p class="body-text">Miguel O'Hara kills Hobie Brown. Sony takes the one character who never took anything seriously — punk rock chaos incarnate, who made everything feel lighter just by existing in a scene — and uses that to make the death hit hardest.</p>
+    <p class="body-text" style="margin-top: 1.5rem;">Miles' spider sense activates before he even knows what it means. His body knows before his brain catches up. Hobie was his person. The one who believed in him when everyone else was against him. Hobie slipped him the watch. Hobie chose him.</p>
+    <div class="last-words-block">
+      <div class="last-words-text">
+        "Stay strong...
+        <span>Miles.</span>
+      </div>
+      <div class="last-words-attribution">HOBIE_BROWN // LAST_WORDS // [SIGNAL_LOST]</div>
+    </div>
+    <p class="body-text">Not a joke. Not a quip. Not "told you so." Hobie — who deflected everything with sarcasm his entire life — uses his last breath to say the most sincere thing he's ever said to anyone. And he calls him <em>Miles</em>. Not Spider-Man. Not the anomaly. <em>Miles</em>. Like Hobie wanted his last words to reach the person, not the symbol.</p>
+    <p class="body-text" style="margin-top: 1.5rem;">Spot catches Miles when he collapses. Because that's all he can do. And Miguel O'Hara, somewhere, thinks he did the right thing.</p>
+  </div>
+</section>
+
+<!-- THEMES -->
+<section id="themes">
+  <div class="container">
+    <div class="section-number">05 — CORE_THEMES</div>
+    <h2 class="section-title">What It's <em>Really</em> About</h2>
+    <div class="themes-grid">
+      <div class="theme-card">
+        <span class="theme-icon">⬤</span>
+        <div class="theme-name">CYCLES_OF_GUILT</div>
+        <p class="theme-desc">Spot did to Gwen what Miles did to Spot. The pattern repeats until someone breaks it. That's the tragedy — and the hope.</p>
+      </div>
+      <div class="theme-card blue-card">
+        <span class="theme-icon">◯</span>
+        <div class="theme-name">BELONGING</div>
+        <p class="theme-desc">Both were told they don't fit. Together they prove the system was wrong about them. Anomalies aren't errors — they're evolution.</p>
+      </div>
+      <div class="theme-card">
+        <span class="theme-icon">△</span>
+        <div class="theme-name">REDEMPTION</div>
+        <p class="theme-desc">Spot tries to be good. It's not enough. And that's the tragedy. Redemption without resolution is still redemption.</p>
+      </div>
+      <div class="theme-card blue-card">
+        <span class="theme-icon">✕</span>
+        <div class="theme-name">PAIN_NOT_INEVITABLE</div>
+        <p class="theme-desc">The canon event system said "take the L." Miles and Spot said no. Whether they're right costs everything.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ENDING -->
+<section id="ending" class="ending-section">
+  <div class="container">
+    <div class="section-number">06 — END_OF_LINE</div>
+    <h2 class="section-title">No Sequel.<br><em>No Resolution.</em></h2>
+    <p class="body-text">Marvel and Sony are obsessed with setting up the next thing. This movie says: no. This is the end. Sit with it. An unresolved ending for a story about broken canon events and rewriting fate is the most poetic choice possible.</p>
+    <p class="body-text" style="margin-top: 1.5rem;">The movie itself becomes an anomaly. No neat conclusion. No canon ending. The story breaks its own rules — just like they did. People will talk about it for decades.</p>
+    <div class="ending-grid">
+      <div class="ending-panel">
+        <div class="ending-panel-label">THE_ENDING</div>
+        <div class="ending-panel-title">It Just... Ends.</div>
+        <p class="ending-panel-body">The film closes without resolution, without a bow on it, without the next adventure teased. Just the weight of everything that happened sitting in the audience's chest.</p>
+      </div>
+      <div class="ending-panel void-panel">
+        <div class="ending-panel-label" style="color: #1a0520;">POST_CREDITS</div>
+        <div class="ending-panel-title">Inside Spot's Head.</div>
+        <p class="ending-panel-body">Infinite darkness. Holes. Emptiness. He's just sitting there. And you hear Miles' voice — or Gwen's — echoing through the portals like fragments he can't let go of. Spot doesn't say anything. He just looks at his hands.<br><br><span style="color:#0d0510; font-size:0.75rem; letter-spacing: 0.15em;">// NO_DIALOGUE // NO_MUSIC // SIGNAL_END</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-concept">CONCEPT_BY: YOU</div>
+    <div class="footer-chaos">CHAOS_COEFFICIENT: MAXIMUM<span class="cursor-blink" style="background:var(--blue); box-shadow:var(--blue-glow);"></span></div>
+  </div>
+  <div class="footer-title">BEYOND THE<br>SPIDER-VERSE</div>
+</footer>
+
+<script>
+  // ====== MATRIX RAIN — red & blue chars ======
+  const canvas = document.getElementById('matrix-canvas');
+  const ctx = canvas.getContext('2d');
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    initDrops();
+  });
+
+  const chars = 'ANOMALY ERROR CANON MILES SPOT GWEN HOBIE 0101 スパイダー ヴァース アノマリ BROKEN VOID EVOLUTION';
+  const fontSize = 13;
+  let columns, drops;
+
+  function initDrops() {
+    columns = Math.floor(canvas.width / fontSize);
+    drops = Array(columns).fill(1).map(() => Math.random() * -canvas.height / fontSize);
+  }
+  initDrops();
+
+  function drawMatrix() {
+    ctx.fillStyle = 'rgba(0,0,0,0.06)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < drops.length; i++) {
+      const charArr = chars.split('');
+      const text = charArr[Math.floor(Math.random() * charArr.length)];
+      // alternate red / blue per column
+      const isBlue = i % 5 === 0;
+      ctx.fillStyle = isBlue ? '#0044aa' : '#8a0010';
+      ctx.font = `${fontSize}px Share Tech Mono, monospace`;
+      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i] += 0.35;
+    }
+  }
+
+  setInterval(drawMatrix, 50);
+
+  // ====== SCROLL REVEAL ======
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.08 });
+
+  document.querySelectorAll('section').forEach(s => observer.observe(s));
+
+  // ====== RANDOM GLITCH ======
+  function triggerGlitch() {
+    const els = document.querySelectorAll('.section-title, .hero-title');
+    const el = els[Math.floor(Math.random() * els.length)];
+    if (!el) return;
+    const dx = (Math.random() - 0.5) * 8;
+    const dy = (Math.random() - 0.5) * 3;
+    const sk = (Math.random() - 0.5) * 5;
+    el.style.transform = `translate(${dx}px,${dy}px) skewX(${sk}deg)`;
+    el.style.filter = Math.random() > 0.5 ? 'hue-rotate(180deg) saturate(2)' : 'none';
+    setTimeout(() => { el.style.transform = ''; el.style.filter = ''; }, 60 + Math.random() * 80);
+  }
+
+  setInterval(triggerGlitch, 2500 + Math.random() * 3000);
+</script>
+</body>
+</html>
