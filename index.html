@@ -970,5 +970,23 @@
 
   setInterval(triggerGlitch, 2500 + Math.random() * 3000);
 </script>
+  <!-- MUSIC -->
+<audio id="bg-music" loop>
+  <source src="sunflower.mp3" type="audio/mpeg">
+</audio>
+
+<button onclick="toggleMusic()" style="
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 15px;
+  background: black;
+  color: red;
+  border: 1px solid red;
+  cursor: pointer;
+  z-index: 9999;
+">
+  🎵 Toggle Music
+</button>
 </body>
 </html>
