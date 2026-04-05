@@ -969,8 +969,18 @@
   }
 
   setInterval(triggerGlitch, 2500 + Math.random() * 3000);
+  
+const music = document.getElementById("bg-music");
+
+function toggleMusic() {
+  if (music.paused) {
+    music.play();
+  } else {
+    music.pause();
+  }
+}
 </script>
-  < MUSIC >
+  < music >
 <audio id="bg-music" loop>
   <source src="sunflower.mp3" type="audio/mpeg">
 </audio>
